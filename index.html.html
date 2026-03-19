@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>ReformaKit</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0e13;
+  --surface: #161920;
+  --surface2: #1d2130;
+  --border: #252b3b;
+  --accent: #f0a500;
+  --accent2: #e05c2a;
+  --green: #27ae60;
+  --green-light: rgba(39,174,96,0.15);
+  --red: #e74c3c;
+  --red-light: rgba(231,76,60,0.15);
+  --blue: #3b82f6;
+  --blue-light: rgba(59,130,246,0.15);
+  --yellow-light: rgba(240,165,0,0.15);
+  --text: #e8eaf0;
+  --muted: #6b7394;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  display:flex;flex-direction:column;
+  height:100dvh;
+  overflow:hidden;
+}
+
+/* TOP HEADER */
+.top-header{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:0 1rem;
+  height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+  position:relative;z-index:10;
+}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;letter-spacing:-0.5px;}
+.logo span{color:var(--accent);}
+.view-pill{display:flex;gap:2px;background:var(--bg);border-radius:99px;padding:3px;}
+.vbtn{
+  padding:5px 12px;border-radius:99px;border:none;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:600;
+  background:transparent;color:var(--muted);transition:all .2s;white-space:nowrap;
+}
+.vbtn.active{background:var(--accent);color:#000;}
+
+/* SCROLL AREA */
+.scroll-area{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  padding:1rem 1rem calc(76px + var(--safe-bottom));
+}
+
+/* BOTTOM NAV */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--surface);border-top:1px solid var(--border);
+  display:flex;padding-bottom:var(--safe-bottom);z-index:50;
+}
+.bnav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  padding:10px 4px 8px;gap:3px;cursor:pointer;border:none;background:none;
+  color:var(--muted);transition:color .2s;font-family:'DM Sans',sans-serif;
+}
+.bnav-item.active{color:var(--accent);}
+.bnav-icon{font-size:1.3rem;line-height:1;}
+.bnav-label{font-size:.58rem;font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
+
+/* PAGE */
+.page{display:none;}
+.page.active{display:block;}
+
+/* DIAGNOSTIC */
+.diag-card{
+  background:linear-gradient(135deg,var(--surface2),#191f2e);
+  border:1px solid var(--border);border-left:3px solid var(--accent);
+  border-radius:14px;padding:1rem 1.1rem;margin-bottom:1rem;
+  position:relative;overflow:hidden;
+}
+.diag-card::after{
+  content:'';position:absolute;top:-30px;right:-30px;
+  width:120px;height:120px;border-radius:50%;
+  background:radial-gradient(circle,rgba(240,165,0,.08),transparent 70%);
+}
+.diag-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;}
+.diag-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite;flex-shrink:0;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
+.diag-lbl{font-family:'Syne',sans-serif;font-size:.7rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;}
+.diag-txt{font-size:.82rem;color:var(--text);line-height:1.55;}
+.diag-time{font-size:.68rem;color:var(--muted);margin-top:.35rem;}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:1rem;}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1rem .9rem;}
+.kpi-lbl{font-size:.67rem;color:var(--muted);font-weight:500;margin-bottom:.35rem;line-height:1.3;}
+.kpi-val{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;line-height:1;}
+.kpi-val.a{color:var(--accent);}
+.kpi-val.g{color:var(--green);}
+.kpi-val.b{color:var(--blue);}
+.kpi-sub{font-size:.63rem;color:var(--muted);margin-top:.25rem;}
+
+/* PROGRESS */
+.prog-wrap{margin-bottom:1rem;}
+.prog-row{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);margin-bottom:.4rem;}
+.prog-track{height:7px;background:var(--surface2);border-radius:99px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .6s ease;}
+
+/* SECTION HEADER */
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;}
+.sec-title{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;}
+.fab{
+  display:flex;align-items:center;gap:.4rem;
+  background:var(--accent);color:#000;border:none;border-radius:99px;
+  padding:8px 16px;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:700;
+  cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.fab:active{transform:scale(.96);}
+
+/* ITEM CARD */
+.item-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:.9rem 1rem;margin-bottom:.6rem;
+  display:flex;align-items:flex-start;gap:.8rem;
+}
+.item-icon{font-size:1.4rem;flex-shrink:0;margin-top:1px;}
+.item-body{flex:1;min-width:0;}
+.item-name{font-size:.88rem;font-weight:600;}
+.item-meta{font-size:.72rem;color:var(--muted);margin-top:.2rem;line-height:1.4;}
+.item-right{display:flex;flex-direction:column;align-items:flex-end;gap:.4rem;flex-shrink:0;}
+.item-val{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--accent);}
+.item-val.g{color:var(--green);}
+.item-val.b{color:var(--blue);}
+.del-btn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:1rem;padding:2px 4px;border-radius:6px;line-height:1;}
+.del-btn:active{color:var(--red);}
+
+/* TAG */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:.66rem;font-weight:600;}
+.tg{background:var(--green-light);color:var(--green);}
+.ty{background:var(--yellow-light);color:var(--accent);}
+.tr{background:var(--red-light);color:var(--red);}
+.tb{background:var(--blue-light);color:var(--blue);}
+
+/* MDO MINI PROGRESS */
+.mdo-prog{margin-top:.5rem;}
+.mdo-prog-track{height:4px;background:var(--surface2);border-radius:99px;overflow:hidden;margin-top:3px;}
+.mdo-prog-fill{height:100%;background:var(--green);border-radius:99px;}
+
+/* EMPTY */
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--muted);font-size:.85rem;}
+.empty-icon{font-size:2.5rem;margin-bottom:.5rem;}
+
+/* TIMELINE */
+.tl{list-style:none;position:relative;padding-left:1.4rem;}
+.tl::before{content:'';position:absolute;left:5px;top:0;bottom:0;width:2px;background:var(--border);}
+.tl-item{position:relative;padding-bottom:1.1rem;}
+.tl-dot{position:absolute;left:-1.4rem;top:4px;width:10px;height:10px;border-radius:50%;border:2px solid var(--bg);}
+.tl-date{font-size:.67rem;color:var(--muted);}
+.tl-text{font-size:.82rem;margin-top:.1rem;line-height:1.4;}
+
+/* SUMMARY */
+.sum-row{display:flex;justify-content:space-between;align-items:center;padding:.55rem 0;border-bottom:1px solid var(--border);font-size:.83rem;}
+.sum-row:last-child{border-bottom:none;}
+.sum-lbl{color:var(--muted);}
+
+/* BOTTOM SHEET */
+.sheet-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.65);backdrop-filter:blur(6px);
+  z-index:200;align-items:flex-end;
+}
+.sheet-overlay.open{display:flex;}
+.sheet{
+  background:var(--surface);border-radius:20px 20px 0 0;
+  width:100%;max-height:92dvh;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:0 1.1rem calc(1.5rem + var(--safe-bottom));
+  animation:slideUp .28s cubic-bezier(.25,.8,.25,1);
+}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sheet-handle{width:36px;height:4px;background:var(--border);border-radius:99px;margin:12px auto 16px;}
+.sheet-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:1.1rem;}
+
+/* FORM */
+.fg{margin-bottom:.85rem;}
+.fl{display:block;font-size:.73rem;color:var(--muted);margin-bottom:.35rem;font-weight:500;}
+.fi,.fsel{
+  width:100%;background:var(--bg);border:1px solid var(--border);
+  border-radius:10px;padding:11px 13px;color:var(--text);
+  font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;
+  transition:border-color .2s;-webkit-appearance:none;appearance:none;
+}
+.fi:focus,.fsel:focus{border-color:var(--accent);}
+.fi::placeholder{color:var(--muted);}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;}
+.sheet-actions{display:flex;gap:.6rem;margin-top:1.1rem;}
+.btn-cancel{
+  flex:1;padding:13px;border-radius:10px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;
+}
+.btn-save{
+  flex:2;padding:13px;border-radius:10px;border:none;
+  background:var(--accent);color:#000;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:700;
+}
+.btn-save:active{transform:scale(.98);}
+
+/* UPLOAD */
+.upload-zone{
+  border:2px dashed var(--border);border-radius:12px;
+  padding:1.1rem;text-align:center;cursor:pointer;
+  transition:all .2s;position:relative;overflow:hidden;
+  background:var(--bg);
+}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--accent);background:rgba(240,165,0,.05);}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.upload-icon{font-size:1.6rem;margin-bottom:.3rem;}
+.upload-txt{font-size:.78rem;color:var(--muted);}
+.upload-txt b{color:var(--accent);}
+.upload-preview{
+  margin-top:.65rem;border-radius:10px;overflow:hidden;
+  border:1px solid var(--border);position:relative;
+  display:none;
+}
+.upload-preview img{width:100%;display:block;max-height:180px;object-fit:cover;}
+.upload-preview-pdf{
+  display:flex;align-items:center;gap:.65rem;
+  padding:.75rem 1rem;background:var(--surface2);
+}
+.pdf-icon{font-size:1.5rem;}
+.pdf-info{flex:1;min-width:0;}
+.pdf-name{font-size:.78rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pdf-size{font-size:.67rem;color:var(--muted);}
+.upload-clear{
+  position:absolute;top:6px;right:6px;
+  background:rgba(0,0,0,.6);border:none;border-radius:99px;
+  color:#fff;width:22px;height:22px;font-size:.75rem;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+/* COMPROVANTE no card */
+.comp-thumb{
+  width:48px;height:48px;border-radius:8px;object-fit:cover;
+  border:1px solid var(--border);cursor:pointer;flex-shrink:0;
+}
+.comp-pdf-badge{
+  width:48px;height:48px;border-radius:8px;
+  background:var(--red-light);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;cursor:pointer;flex-shrink:0;
+}
+/* LIGHTBOX */
+.lightbox{
+  display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,.92);align-items:center;justify-content:center;
+}
+.lightbox.open{display:flex;}
+.lightbox img{max-width:95vw;max-height:90dvh;border-radius:12px;object-fit:contain;}
+.lightbox-close{
+  position:fixed;top:1rem;right:1rem;background:rgba(255,255,255,.15);
+  border:none;color:#fff;font-size:1.4rem;width:40px;height:40px;
+  border-radius:99px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+
+/* DESKTOP */
+@media(min-width:640px){
+  .kpi-grid{grid-template-columns:repeat(4,1fr);}
+  .kpi-val{font-size:1.4rem;}
+  .scroll-area{padding:1.5rem 1.5rem calc(80px + var(--safe-bottom));}
+  .sheet{max-width:520px;margin:0 auto;border-radius:20px;margin-bottom:2rem;}
+  .sheet-overlay{align-items:center;}
+}
+@media(min-width:900px){
+  body{flex-direction:row;}
+  .top-header{display:none;}
+  .sidebar-desktop{
+    display:flex!important;flex-direction:column;
+    width:220px;min-width:220px;background:var(--surface);
+    border-right:1px solid var(--border);padding:1.5rem 1rem;gap:.15rem;
+    overflow-y:auto;flex-shrink:0;
+  }
+  .sidebar-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;letter-spacing:-.5px;padding:.5rem .75rem 1.25rem;}
+  .sidebar-logo span{color:var(--accent);}
+  .snav-lbl{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);padding:.75rem .75rem .3rem;}
+  .snav-item{
+    display:flex;align-items:center;gap:.65rem;
+    padding:.6rem .75rem;border-radius:9px;cursor:pointer;
+    font-size:.85rem;color:var(--muted);border:1px solid transparent;transition:all .15s;
+  }
+  .snav-item:hover{background:var(--surface2);color:var(--text);}
+  .snav-item.active{background:rgba(240,165,0,.12);color:var(--accent);border-color:rgba(240,165,0,.2);font-weight:500;}
+  .snav-icon{font-size:.95rem;width:18px;text-align:center;}
+  .view-switcher{margin-top:auto;padding-top:1rem;border-top:1px solid var(--border);}
+  .vbtn-desk{
+    display:block;width:100%;padding:8px 12px;border-radius:8px;border:1px solid var(--border);
+    background:transparent;color:var(--muted);text-align:left;cursor:pointer;
+    font-family:'DM Sans',sans-serif;font-size:.82rem;margin-bottom:.35rem;transition:all .2s;
+  }
+  .vbtn-desk.active{background:rgba(240,165,0,.12);color:var(--accent);border-color:rgba(240,165,0,.3);}
+  .main-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+  .scroll-area{padding:1.5rem 2rem 2rem;}
+  .bottom-nav{display:none!important;}
+}
+.sidebar-desktop{display:none;}
+</style>
+</head>
+<body>
+
+<!-- TOP HEADER (mobile/tablet) -->
+<header class="top-header">
+  <div class="logo">Reforma<span>Kit</span></div>
+  <div class="view-pill">
+    <button class="vbtn active" onclick="setView('coord',this)">👷 Coord.</button>
+    <button class="vbtn" onclick="setView('prop',this)">🏠 Prop.</button>
+  </div>
+</header>
+
+<!-- DESKTOP SIDEBAR -->
+<aside class="sidebar-desktop">
+  <div class="sidebar-logo">Reforma<span>Kit</span></div>
+  <div class="snav-lbl">Gestão</div>
+  <div class="snav-item active" data-page="dashboard" onclick="showPage('dashboard',this)"><span class="snav-icon">📊</span>Dashboard</div>
+  <div class="snav-item" data-page="materiais" onclick="showPage('materiais',this)"><span class="snav-icon">🧱</span>Materiais</div>
+  <div class="snav-item" data-page="maodeobra" onclick="showPage('maodeobra',this)"><span class="snav-icon">🔨</span>Mão de Obra</div>
+  <div class="snav-item" data-page="pagamentos" onclick="showPage('pagamentos',this)"><span class="snav-icon">💰</span>Pagamentos</div>
+  <div class="snav-lbl">Acompanhamento</div>
+  <div class="snav-item" data-page="historico" onclick="showPage('historico',this)"><span class="snav-icon">📋</span>Histórico</div>
+  <div class="snav-item" data-page="relatorio" onclick="showPage('relatorio',this)"><span class="snav-icon">📄</span>Relatório</div>
+  <div class="view-switcher">
+    <div class="snav-lbl" style="padding-top:0">Visão</div>
+    <button class="vbtn-desk active" id="vd-coord" onclick="setView('coord',null)">👷 Coordenador</button>
+    <button class="vbtn-desk" id="vd-prop" onclick="setView('prop',null)">🏠 Proprietário</button>
+  </div>
+</aside>
+
+<!-- MAIN WRAP -->
+<div class="main-wrap">
+<div class="scroll-area" id="scroll-area">
+
+  <!-- DASHBOARD -->
+  <div id="page-dashboard" class="page active">
+    <div class="diag-card">
+      <div class="diag-top"><div class="diag-dot"></div><span class="diag-lbl">Diagnóstico da Obra</span></div>
+      <div class="diag-txt" id="diag-txt">Bem-vindo! Adicione materiais ou mão de obra para começar.</div>
+      <div class="diag-time" id="diag-time">Aguardando dados...</div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="kpi-lbl">Materiais</div><div class="kpi-val a" id="kpi-mat">R$ 0</div><div class="kpi-sub" id="kpi-mat-n">0 itens</div></div>
+      <div class="kpi-card"><div class="kpi-lbl">Mão de Obra</div><div class="kpi-val b" id="kpi-mdo">R$ 0</div><div class="kpi-sub" id="kpi-mdo-n">0 serviços</div></div>
+      <div class="kpi-card"><div class="kpi-lbl">MO Pago</div><div class="kpi-val g" id="kpi-mpago">R$ 0</div><div class="kpi-sub" id="kpi-mpago-n">a pagar R$ 0</div></div>
+      <div class="kpi-card"><div class="kpi-lbl">Total Obra</div><div class="kpi-val a" id="kpi-total">R$ 0</div><div class="kpi-sub" id="kpi-total-n">pago R$ 0</div></div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-row"><span>Progresso financeiro</span><span id="prog-pct">0%</span></div>
+      <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div class="sec-head"><div class="sec-title">Últimos lançamentos</div></div>
+    <div id="recent-list"><div class="empty"><div class="empty-icon">📝</div>Nenhum lançamento ainda.</div></div>
+  </div>
+
+  <!-- MATERIAIS -->
+  <div id="page-materiais" class="page">
+    <div class="sec-head">
+      <div class="sec-title">🧱 Materiais</div>
+      <button class="fab add-btn" onclick="openSheet('material')">+ Adicionar</button>
+    </div>
+    <div id="mat-list"><div class="empty"><div class="empty-icon">🧱</div>Nenhum material ainda.</div></div>
+  </div>
+
+  <!-- MÃO DE OBRA -->
+  <div id="page-maodeobra" class="page">
+    <div class="sec-head">
+      <div class="sec-title">🔨 Mão de Obra</div>
+      <button class="fab add-btn" onclick="openSheet('mdo')">+ Adicionar</button>
+    </div>
+    <div id="mdo-list"><div class="empty"><div class="empty-icon">🔨</div>Nenhum profissional ainda.</div></div>
+  </div>
+
+  <!-- PAGAMENTOS -->
+  <div id="page-pagamentos" class="page">
+    <div class="sec-head">
+      <div class="sec-title">💰 Pagamentos</div>
+      <button class="fab add-btn" onclick="openSheet('pgto')">+ Registrar</button>
+    </div>
+    <div id="pgto-list"><div class="empty"><div class="empty-icon">💰</div>Nenhum pagamento ainda.</div></div>
+  </div>
+
+  <!-- HISTÓRICO -->
+  <div id="page-historico" class="page">
+    <div class="sec-head"><div class="sec-title">📋 Histórico</div></div>
+    <ul class="tl" id="tl-list">
+      <li class="tl-item"><div class="tl-dot" style="background:var(--muted)"></div><div class="tl-text" style="color:var(--muted)">Obra iniciada no sistema.</div></li>
+    </ul>
+  </div>
+
+  <!-- RELATÓRIO -->
+  <div id="page-relatorio" class="page">
+    <div class="sec-head"><div class="sec-title">📄 Relatório</div></div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1rem 1.1rem;" id="report-wrap">
+      <div class="empty"><div class="empty-icon">📄</div>Adicione dados para ver o relatório.</div>
+    </div>
+  </div>
+
+</div><!-- /scroll-area -->
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="bnav-item active" data-page="dashboard" onclick="showPage('dashboard',this)"><span class="bnav-icon">📊</span><span class="bnav-label">Início</span></button>
+  <button class="bnav-item" data-page="materiais" onclick="showPage('materiais',this)"><span class="bnav-icon">🧱</span><span class="bnav-label">Materiais</span></button>
+  <button class="bnav-item" data-page="maodeobra" onclick="showPage('maodeobra',this)"><span class="bnav-icon">🔨</span><span class="bnav-label">MO</span></button>
+  <button class="bnav-item" data-page="pagamentos" onclick="showPage('pagamentos',this)"><span class="bnav-icon">💰</span><span class="bnav-label">Pagtos</span></button>
+  <button class="bnav-item" data-page="historico" onclick="showPage('historico',this)"><span class="bnav-icon">📋</span><span class="bnav-label">Log</span></button>
+</nav>
+</div><!-- /main-wrap -->
+
+<!-- SHEET: MATERIAL -->
+<div class="sheet-overlay" id="sheet-material">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">🧱 Novo Material</div>
+    <div class="fg"><label class="fl">Nome do item *</label><input class="fi" id="m-nome" placeholder="Ex: Cimento CP2, Tinta Coral..."></div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Categoria</label>
+        <select class="fsel" id="m-cat"><option>Alvenaria</option><option>Elétrica</option><option>Hidráulica</option><option>Acabamento</option><option>Ferragens</option><option>Pintura</option><option>Outros</option></select>
+      </div>
+      <div class="fg"><label class="fl">Data da compra</label><input type="date" class="fi" id="m-data"></div>
+    </div>
+    <div class="fg"><label class="fl">Fornecedor</label><input class="fi" id="m-forn" placeholder="Nome da loja ou fornecedor"></div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Quantidade</label><input type="number" class="fi" id="m-qtd" placeholder="1" min="0" step="0.01"></div>
+      <div class="fg"><label class="fl">Valor unit. (R$)</label><input type="number" class="fi" id="m-valor" placeholder="0,00" min="0" step="0.01"></div>
+    </div>
+    <div class="fg"><label class="fl">Nota Fiscal (opcional)</label><input class="fi" id="m-nf" placeholder="Nº da NF"></div>
+    <div class="fg"><label class="fl">Status do pagamento</label>
+      <select class="fsel" id="m-status"><option value="pago">✅ Pago</option><option value="pendente">⏳ Pendente</option><option value="parcelado">📅 Parcelado</option></select>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn-cancel" onclick="closeSheet('material')">Cancelar</button>
+      <button class="btn-save" onclick="saveMaterial()">Salvar Material</button>
+    </div>
+  </div>
+</div>
+
+<!-- SHEET: MÃO DE OBRA -->
+<div class="sheet-overlay" id="sheet-mdo">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">🔨 Mão de Obra</div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Profissional *</label><input class="fi" id="d-nome" placeholder="Nome"></div>
+      <div class="fg"><label class="fl">Tipo de serviço</label>
+        <select class="fsel" id="d-tipo"><option>Pedreiro</option><option>Eletricista</option><option>Encanador</option><option>Pintor</option><option>Marceneiro</option><option>Gesseiro</option><option>Servente</option><option>Outros</option></select>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">Descrição do serviço</label><input class="fi" id="d-desc" placeholder="Ex: Reboco banheiro, troca fiação..."></div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Data início</label><input type="date" class="fi" id="d-ini"></div>
+      <div class="fg"><label class="fl">Término prev.</label><input type="date" class="fi" id="d-fim"></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Valor contratado (R$)</label><input type="number" class="fi" id="d-valor" placeholder="0,00" min="0" step="0.01"></div>
+      <div class="fg"><label class="fl">Já pago (R$)</label><input type="number" class="fi" id="d-pago" placeholder="0,00" min="0" step="0.01"></div>
+    </div>
+    <div class="fg"><label class="fl">Status</label>
+      <select class="fsel" id="d-status"><option value="andamento">🔄 Em andamento</option><option value="concluido">✅ Concluído</option><option value="aguardando">⏳ Aguardando</option><option value="pausado">⏸️ Pausado</option></select>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn-cancel" onclick="closeSheet('mdo')">Cancelar</button>
+      <button class="btn-save" onclick="saveMdo()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- SHEET: PAGAMENTO -->
+<div class="sheet-overlay" id="sheet-pgto">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">💰 Registrar Pagamento</div>
+    <div class="fg"><label class="fl">Descrição *</label><input class="fi" id="p-desc" placeholder="Ex: Saldo pedreiro, compra de cimento..."></div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Valor (R$)</label><input type="number" class="fi" id="p-valor" placeholder="0,00" min="0" step="0.01"></div>
+      <div class="fg"><label class="fl">Data</label><input type="date" class="fi" id="p-data"></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Forma de pagamento</label>
+        <select class="fsel" id="p-forma"><option>PIX</option><option>Dinheiro</option><option>TED/DOC</option><option>Boleto</option><option>Cartão</option></select>
+      </div>
+      <div class="fg"><label class="fl">Categoria</label>
+        <select class="fsel" id="p-cat"><option>Mão de Obra</option><option>Material</option><option>Engenharia</option><option>Outros</option></select>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">Observação / nº comprovante</label><input class="fi" id="p-obs" placeholder="Nº pix, recibo..."></div>
+    <div class="fg">
+      <label class="fl">Comprovante ou Nota Fiscal</label>
+      <div class="upload-zone" id="upload-zone" onclick="document.getElementById('p-file').click()">
+        <input type="file" id="p-file" accept="image/*,application/pdf" onchange="handleFile(this)">
+        <div id="upload-placeholder">
+          <div class="upload-icon">📎</div>
+          <div class="upload-txt">Toque para anexar<br><b>foto, print ou PDF</b></div>
+        </div>
+        <div class="upload-preview" id="upload-preview">
+          <img id="preview-img" src="" alt="comprovante">
+          <button class="upload-clear" onclick="clearFile(event)">✕</button>
+        </div>
+        <div class="upload-preview" id="upload-pdf-preview" style="display:none">
+          <div class="upload-preview-pdf">
+            <div class="pdf-icon">📄</div>
+            <div class="pdf-info">
+              <div class="pdf-name" id="pdf-name">arquivo.pdf</div>
+              <div class="pdf-size" id="pdf-size"></div>
+            </div>
+          </div>
+          <button class="upload-clear" onclick="clearFile(event)">✕</button>
+        </div>
+      </div>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn-cancel" onclick="closeSheet('pgto')">Cancelar</button>
+      <button class="btn-save" onclick="savePgto()">Salvar Pagamento</button>
+    </div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <img id="lightbox-img" src="" alt="comprovante">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+</div>
+
+<script>
+// STATE
+let S={mat:[],mdo:[],pgto:[],log:[]};
+try{const sv=localStorage.getItem('rk3');if(sv)S=JSON.parse(sv);}catch(e){}
+const save=()=>{try{localStorage.setItem('rk3',JSON.stringify(S));}catch(e){}};
+
+// VIEW
+let view='coord';
+function setView(v,el){
+  view=v;
+  document.querySelectorAll('.vbtn').forEach(b=>b.classList.remove('active'));
+  if(el&&el.classList.contains('vbtn'))el.classList.add('active');
+  const vc=document.getElementById('vd-coord');
+  const vp=document.getElementById('vd-prop');
+  if(vc)vc.classList.toggle('active',v==='coord');
+  if(vp)vp.classList.toggle('active',v==='prop');
+  document.querySelectorAll('.add-btn').forEach(b=>b.style.display=v==='prop'?'none':'');
+  renderPage(curPage);
+}
+
+// NAV
+let curPage='dashboard';
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.bnav-item,[data-page]').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('[data-page="'+id+'"]').forEach(b=>b.classList.add('active'));
+  curPage=id;
+  document.getElementById('scroll-area').scrollTop=0;
+  renderPage(id);
+}
+
+function renderPage(id){
+  if(id==='dashboard')renderDash();
+  else if(id==='materiais')renderMat();
+  else if(id==='maodeobra')renderMdoList();
+  else if(id==='pagamentos')renderPgto();
+  else if(id==='historico')renderLog();
+  else if(id==='relatorio')renderReport();
+}
+
+// SHEETS
+function openSheet(t){
+  if(view==='prop')return;
+  const today=new Date().toISOString().split('T')[0];
+  if(t==='material')document.getElementById('m-data').value=today;
+  if(t==='mdo')document.getElementById('d-ini').value=today;
+  if(t==='pgto')document.getElementById('p-data').value=today;
+  document.getElementById('sheet-'+t).classList.add('open');
+}
+function closeSheet(t){document.getElementById('sheet-'+t).classList.remove('open');}
+document.querySelectorAll('.sheet-overlay').forEach(el=>{
+  el.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+});
+
+// HELPERS
+const fmt=v=>'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtS=v=>{const n=Number(v||0);if(n>=1000)return'R$ '+(Math.round(n/100)/10).toLocaleString('pt-BR')+'k';return'R$ '+n.toLocaleString('pt-BR',{minimumFractionDigits:0});};
+const fmtD=d=>d?new Date(d+'T12:00').toLocaleDateString('pt-BR'):'-';
+const nowStr=()=>new Date().toLocaleString('pt-BR');
+const uid=()=>Date.now()+Math.random();
+function addLog(msg,color){S.log.unshift({msg,color:color||'accent',date:nowStr()});save();}
+
+// CALC
+function calc(){
+  const tMat=S.mat.reduce((a,b)=>a+b.total,0);
+  const tMdoC=S.mdo.reduce((a,b)=>a+b.valor,0);
+  const tMdoP=S.mdo.reduce((a,b)=>a+b.pago,0);
+  const tMdoS=tMdoC-tMdoP;
+  const tObra=tMat+tMdoC;
+  const tPago=S.pgto.reduce((a,b)=>a+b.valor,0);
+  const pct=tObra>0?Math.min(100,Math.round((tPago/tObra)*100)):0;
+  return{tMat,tMdoC,tMdoP,tMdoS,tObra,tPago,pct};
+}
+
+// DASHBOARD
+function renderDash(){
+  const c=calc();
+  document.getElementById('kpi-mat').textContent=fmtS(c.tMat);
+  document.getElementById('kpi-mat-n').textContent=S.mat.length+' itens';
+  document.getElementById('kpi-mdo').textContent=fmtS(c.tMdoC);
+  document.getElementById('kpi-mdo-n').textContent=S.mdo.length+' serviços';
+  document.getElementById('kpi-mpago').textContent=fmtS(c.tMdoP);
+  document.getElementById('kpi-mpago-n').textContent='a pagar '+fmtS(c.tMdoS);
+  document.getElementById('kpi-total').textContent=fmtS(c.tObra);
+  document.getElementById('kpi-total-n').textContent='pago '+fmtS(c.tPago);
+  document.getElementById('prog-fill').style.width=c.pct+'%';
+  document.getElementById('prog-pct').textContent=c.pct+'%';
+  updateDiag(c);renderRecent();
+}
+
+function updateDiag(c){
+  let msgs=[];
+  if(!S.mat.length&&!S.mdo.length){
+    document.getElementById('diag-txt').textContent='Nenhum dado ainda. Comece adicionando materiais ou mão de obra.';
+    document.getElementById('diag-time').textContent='Aguardando dados...';
+    return;
+  }
+  if(c.tMat>0)msgs.push('Materiais: '+fmt(c.tMat)+' ('+S.mat.length+' itens)');
+  if(c.tMdoC>0)msgs.push('MO: '+fmt(c.tMdoC)+' · pago '+fmt(c.tMdoP)+' · saldo '+fmt(c.tMdoS));
+  if(c.tObra>0)msgs.push('Total obra: '+fmt(c.tObra));
+  if(c.pct>=100)msgs.push('✅ Tudo pago!');
+  else if(c.pct>0)msgs.push(c.pct+'% desembolsado.');
+  const em=S.mdo.filter(x=>x.status==='andamento');
+  if(em.length)msgs.push(em.length+' serviço(s) em andamento.');
+  document.getElementById('diag-txt').textContent=msgs.join(' · ');
+  document.getElementById('diag-time').textContent='Atualizado: '+nowStr();
+}
+
+function renderRecent(){
+  const el=document.getElementById('recent-list');
+  const all=[];
+  S.mat.forEach(m=>all.push({ico:'🧱',name:m.nome,sub:m.cat+' · '+fmtD(m.data),val:fmt(m.total),date:m.data}));
+  S.mdo.forEach(m=>all.push({ico:'🔨',name:m.nome,sub:m.tipo+' · '+fmtD(m.inicio),val:fmt(m.valor),date:m.inicio}));
+  S.pgto.forEach(p=>all.push({ico:'💰',name:p.desc,sub:p.forma+' · '+fmtD(p.data),val:fmt(p.valor),date:p.data}));
+  all.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const rec=all.slice(0,7);
+  if(!rec.length){el.innerHTML='<div class="empty"><div class="empty-icon">📝</div>Nenhum lançamento ainda.</div>';return;}
+  el.innerHTML=rec.map(r=>`<div class="item-card">
+    <div class="item-icon">${r.ico}</div>
+    <div class="item-body"><div class="item-name">${r.name}</div><div class="item-meta">${r.sub}</div></div>
+    <div class="item-right"><div class="item-val">${r.val}</div></div>
+  </div>`).join('');
+}
+
+// MATERIAIS
+function saveMaterial(){
+  const nome=document.getElementById('m-nome').value.trim();
+  if(!nome){alert('Informe o nome do item.');return;}
+  const qtd=parseFloat(document.getElementById('m-qtd').value)||1;
+  const valor=parseFloat(document.getElementById('m-valor').value)||0;
+  const item={id:uid(),nome,cat:document.getElementById('m-cat').value,data:document.getElementById('m-data').value,forn:document.getElementById('m-forn').value,nf:document.getElementById('m-nf').value,qtd,valor,total:qtd*valor,status:document.getElementById('m-status').value};
+  S.mat.push(item);addLog('Material: '+nome+' ('+fmt(item.total)+')','accent');
+  save();closeSheet('material');
+  ['m-nome','m-forn','m-nf','m-qtd','m-valor'].forEach(id=>document.getElementById(id).value='');
+  renderDash();renderMat();
+}
+
+function renderMat(){
+  const el=document.getElementById('mat-list');
+  if(!S.mat.length){el.innerHTML='<div class="empty"><div class="empty-icon">🧱</div>Nenhum material cadastrado.</div>';return;}
+  const stC={pago:'tg',pendente:'ty',parcelado:'tb'};
+  const stL={pago:'Pago',pendente:'Pendente',parcelado:'Parcelado'};
+  el.innerHTML=S.mat.map(m=>`<div class="item-card">
+    <div class="item-icon">🧱</div>
+    <div class="item-body">
+      <div class="item-name">${m.nome}</div>
+      <div class="item-meta">${m.cat}${m.forn?' · '+m.forn:''} · ${fmtD(m.data)}</div>
+      <div class="item-meta">${m.qtd} un · ${fmt(m.valor)}/un${m.nf?' · NF '+m.nf:''}</div>
+      <span class="tag ${stC[m.status]||'ty'}" style="margin-top:.4rem;display:inline-block">${stL[m.status]||m.status}</span>
+    </div>
+    <div class="item-right">
+      <div class="item-val">${fmt(m.total)}</div>
+      ${view==='coord'?`<button class="del-btn" onclick="delMat(${m.id})">🗑️</button>`:''}
+    </div>
+  </div>`).join('');
+}
+
+function delMat(id){
+  const i=S.mat.find(x=>x.id===id);
+  if(i&&confirm('Remover "'+i.nome+'"?')){S.mat=S.mat.filter(x=>x.id!==id);addLog('Material removido: '+i.nome,'red');save();renderDash();renderMat();}
+}
+
+// MÃO DE OBRA
+function saveMdo(){
+  const nome=document.getElementById('d-nome').value.trim();
+  if(!nome){alert('Informe o profissional.');return;}
+  const valor=parseFloat(document.getElementById('d-valor').value)||0;
+  const pago=parseFloat(document.getElementById('d-pago').value)||0;
+  const item={id:uid(),nome,tipo:document.getElementById('d-tipo').value,desc:document.getElementById('d-desc').value,inicio:document.getElementById('d-ini').value,fim:document.getElementById('d-fim').value,valor,pago,saldo:valor-pago,status:document.getElementById('d-status').value};
+  S.mdo.push(item);addLog('MO: '+nome+' - '+item.tipo+' ('+fmt(valor)+')','blue');
+  save();closeSheet('mdo');
+  ['d-nome','d-desc','d-valor','d-pago'].forEach(id=>document.getElementById(id).value='');
+  renderDash();renderMdoList();
+}
+
+function renderMdoList(){
+  const el=document.getElementById('mdo-list');
+  if(!S.mdo.length){el.innerHTML='<div class="empty"><div class="empty-icon">🔨</div>Nenhum profissional cadastrado.</div>';return;}
+  const stC={andamento:'tb',concluido:'tg',aguardando:'ty',pausado:'tr'};
+  const stL={andamento:'Em andamento',concluido:'Concluído',aguardando:'Aguardando',pausado:'Pausado'};
+  el.innerHTML=S.mdo.map(m=>{
+    const pct=m.valor>0?Math.min(100,Math.round((m.pago/m.valor)*100)):0;
+    return`<div class="item-card">
+      <div class="item-icon">🔨</div>
+      <div class="item-body">
+        <div class="item-name">${m.nome}</div>
+        <div class="item-meta">${m.tipo}${m.desc?' · '+m.desc:''}</div>
+        <div class="item-meta">${fmtD(m.inicio)} → ${fmtD(m.fim)}</div>
+        <span class="tag ${stC[m.status]||'ty'}" style="margin-top:.3rem;display:inline-block">${stL[m.status]||m.status}</span>
+        <div class="mdo-prog">
+          <div style="display:flex;justify-content:space-between;font-size:.65rem;color:var(--muted)">
+            <span>Pago: <span style="color:var(--green)">${fmt(m.pago)}</span></span>
+            <span>Saldo: <span style="color:var(--accent)">${fmt(m.saldo)}</span></span>
+          </div>
+          <div class="mdo-prog-track"><div class="mdo-prog-fill" style="width:${pct}%"></div></div>
+        </div>
+      </div>
+      <div class="item-right">
+        <div class="item-val b">${fmt(m.valor)}</div>
+        ${view==='coord'?`<button class="del-btn" onclick="delMdo(${m.id})">🗑️</button>`:''}
+      </div>
+    </div>`;}).join('');
+}
+
+function delMdo(id){
+  const i=S.mdo.find(x=>x.id===id);
+  if(i&&confirm('Remover "'+i.nome+'"?')){S.mdo=S.mdo.filter(x=>x.id!==id);addLog('MO removida: '+i.nome,'red');save();renderDash();renderMdoList();}
+}
+
+// PAGAMENTOS
+let pgtoFileData=null; // {data, type, name, size}
+
+function handleFile(input){
+  const file=input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const data=e.target.result;
+    pgtoFileData={data,type:file.type,name:file.name,size:file.size};
+    document.getElementById('upload-placeholder').style.display='none';
+    if(file.type==='application/pdf'){
+      document.getElementById('upload-preview').style.display='none';
+      const pp=document.getElementById('upload-pdf-preview');
+      pp.style.display='block';
+      document.getElementById('pdf-name').textContent=file.name;
+      document.getElementById('pdf-size').textContent=(file.size/1024).toFixed(0)+' KB';
+    } else {
+      document.getElementById('upload-pdf-preview').style.display='none';
+      const prev=document.getElementById('upload-preview');
+      prev.style.display='block';
+      document.getElementById('preview-img').src=data;
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearFile(e){
+  e.stopPropagation();
+  pgtoFileData=null;
+  document.getElementById('p-file').value='';
+  document.getElementById('upload-placeholder').style.display='block';
+  document.getElementById('upload-preview').style.display='none';
+  document.getElementById('upload-pdf-preview').style.display='none';
+}
+
+function resetUpload(){
+  pgtoFileData=null;
+  document.getElementById('p-file').value='';
+  document.getElementById('upload-placeholder').style.display='block';
+  document.getElementById('upload-preview').style.display='none';
+  document.getElementById('upload-pdf-preview').style.display='none';
+}
+
+function openLightbox(src){
+  document.getElementById('lightbox-img').src=src;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('open');}
+
+function savePgto(){
+  const desc=document.getElementById('p-desc').value.trim();
+  if(!desc){alert('Informe a descrição.');return;}
+  const valor=parseFloat(document.getElementById('p-valor').value)||0;
+  const item={id:uid(),desc,valor,data:document.getElementById('p-data').value,forma:document.getElementById('p-forma').value,cat:document.getElementById('p-cat').value,obs:document.getElementById('p-obs').value,anexo:pgtoFileData||null};
+  S.pgto.push(item);addLog('Pagamento: '+desc+' '+fmt(valor)+' via '+item.forma,'green');
+  save();closeSheet('pgto');
+  ['p-desc','p-valor','p-obs'].forEach(id=>document.getElementById(id).value='');
+  resetUpload();
+  renderDash();renderPgto();
+}
+
+function renderPgto(){
+  const el=document.getElementById('pgto-list');
+  if(!S.pgto.length){el.innerHTML='<div class="empty"><div class="empty-icon">💰</div>Nenhum pagamento registrado.</div>';return;}
+  const sorted=[...S.pgto].sort((a,b)=>(b.data||'').localeCompare(a.data||''));
+  el.innerHTML=sorted.map(p=>{
+    let anexoHTML='';
+    if(p.anexo){
+      if(p.anexo.type==='application/pdf'){
+        anexoHTML=`<div class="comp-pdf-badge" title="${p.anexo.name}" onclick="window.open('${p.anexo.data}','_blank')">📄</div>`;
+      } else {
+        anexoHTML=`<img class="comp-thumb" src="${p.anexo.data}" alt="comprovante" onclick="openLightbox('${p.anexo.data}')">`;
+      }
+    }
+    return`<div class="item-card">
+    <div class="item-icon">💰</div>
+    <div class="item-body">
+      <div class="item-name">${p.desc}</div>
+      <div class="item-meta">${p.cat} · ${p.forma} · ${fmtD(p.data)}</div>
+      ${p.obs?`<div class="item-meta">${p.obs}</div>`:''}
+      ${p.anexo?`<div class="item-meta" style="color:var(--accent);margin-top:.3rem">📎 ${p.anexo.name}</div>`:''}
+    </div>
+    <div class="item-right" style="align-items:flex-end;gap:.5rem">
+      ${anexoHTML}
+      <div class="item-val g">${fmt(p.valor)}</div>
+      ${view==='coord'?`<button class="del-btn" onclick="delPgto(${p.id})">🗑️</button>`:''}
+    </div>
+  </div>`;}).join('');
+}
+
+function delPgto(id){
+  const i=S.pgto.find(x=>x.id===id);
+  if(i&&confirm('Remover pagamento?')){S.pgto=S.pgto.filter(x=>x.id!==id);addLog('Pagamento removido: '+i.desc,'red');save();renderDash();renderPgto();}
+}
+
+// LOG
+function renderLog(){
+  const el=document.getElementById('tl-list');
+  if(!S.log.length){el.innerHTML='<li class="tl-item"><div class="tl-dot" style="background:var(--muted)"></div><div class="tl-text" style="color:var(--muted)">Nenhuma atividade.</div></li>';return;}
+  const clr={accent:'var(--accent)',green:'var(--green)',red:'var(--red)',blue:'var(--blue)'};
+  el.innerHTML=S.log.map(l=>`<li class="tl-item">
+    <div class="tl-dot" style="background:${clr[l.color]||'var(--accent)'}"></div>
+    <div class="tl-date">${l.date}</div>
+    <div class="tl-text">${l.msg}</div>
+  </li>`).join('');
+}
+
+// RELATÓRIO
+function renderReport(){
+  const c=calc();
+  const el=document.getElementById('report-wrap');
+  if(!S.mat.length&&!S.mdo.length){el.innerHTML='<div class="empty"><div class="empty-icon">📄</div>Adicione dados para ver o relatório.</div>';return;}
+  el.innerHTML=`
+    <div style="font-family:Syne,sans-serif;font-size:.95rem;font-weight:700;margin-bottom:.9rem">📊 Resumo Financeiro</div>
+    <div class="sum-row"><span class="sum-lbl">Materiais</span><span>${fmt(c.tMat)}</span></div>
+    <div class="sum-row"><span class="sum-lbl">MO Contratada</span><span>${fmt(c.tMdoC)}</span></div>
+    <div class="sum-row"><span class="sum-lbl">MO Paga</span><span style="color:var(--green)">${fmt(c.tMdoP)}</span></div>
+    <div class="sum-row"><span class="sum-lbl">MO a Pagar</span><span style="color:var(--accent)">${fmt(c.tMdoS)}</span></div>
+    <div class="sum-row" style="font-weight:600"><span>Total Obra</span><span style="color:var(--accent)">${fmt(c.tObra)}</span></div>
+    <div class="sum-row"><span class="sum-lbl">Desembolsado</span><span style="color:var(--green)">${fmt(c.tPago)}</span></div>
+    ${S.mat.length?`<div style="font-family:Syne,sans-serif;font-size:.88rem;font-weight:700;margin:1.1rem 0 .6rem">🧱 Materiais (${S.mat.length})</div>${S.mat.map(m=>`<div class="sum-row"><span class="sum-lbl">${m.nome}</span><span>${fmt(m.total)}</span></div>`).join('')}`:''}
+    ${S.mdo.length?`<div style="font-family:Syne,sans-serif;font-size:.88rem;font-weight:700;margin:1.1rem 0 .6rem">🔨 Mão de Obra (${S.mdo.length})</div>${S.mdo.map(m=>`<div class="sum-row"><span class="sum-lbl">${m.nome} · ${m.tipo}</span><span>${fmt(m.valor)} <small style="color:var(--green)">(${fmt(m.pago)} pago)</small></span></div>`).join('')}`:''}
+  `;
+}
+
+// INIT
+renderDash();
+</script>
+</body>
+</html>
